@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢核 3D 懸浮島嶼探索世界 | Island Explorer</title>
+    <title>夕陽晚霞 3D 夢核探索島嶼 | Sunset Island Explorer</title>
     <!-- Three.js 3D 引擎與控制庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -16,16 +16,13 @@
 
     <style>
         :root {
-            --pastel-pink: #ffd6e0;
-            --pastel-orange: #ffefd5;
-            --pastel-blue: #c8e7ff;
-            --pastel-green: #d8f3dc;
-            --pastel-yellow: #fff3b0;
-            --card-glass: rgba(255, 255, 255, 0.65);
-            --card-border: rgba(255, 255, 255, 0.8);
-            --text-main: #5c4b51;
-            --text-sub: #8d7b82;
-            --accent-glow: #ffe5ec;
+            --sunset-orange: #ffaa5b;
+            --sunset-pink: #ff7b9c;
+            --sunset-purple: #6c5ce7;
+            --card-glass: rgba(255, 240, 230, 0.75);
+            --card-border: rgba(255, 255, 255, 0.85);
+            --text-main: #4a3740;
+            --text-sub: #7a626c;
         }
 
         * {
@@ -37,14 +34,13 @@
 
         body {
             font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
-            background: #ffd6e0;
+            background: #ffaa5b;
             color: var(--text-main);
             overflow: hidden;
             width: 100vw;
             height: 100vh;
         }
 
-        /* 3D Canvas 容器 */
         #webgl-container {
             width: 100%;
             height: 100%;
@@ -54,7 +50,6 @@
             z-index: 1;
         }
 
-        /* UI 蓋板圖層 */
         .ui-layer {
             position: absolute;
             top: 0;
@@ -73,14 +68,13 @@
             pointer-events: auto;
         }
 
-        /* 夢幻標題列 */
         header {
             background: var(--card-glass);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
             border: 1px solid var(--card-border);
             border-radius: 20px;
             padding: 15px 25px;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 123, 156, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -91,7 +85,7 @@
 
         .header-title h1 {
             font-size: 1.5rem;
-            color: #6b4c57;
+            color: #5c3243;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -109,7 +103,7 @@
         }
 
         .btn {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             border: 1px solid var(--card-border);
             padding: 10px 18px;
             border-radius: 12px;
@@ -127,21 +121,20 @@
         .btn:hover {
             transform: translateY(-2px);
             background: #fff;
-            box-shadow: 0 6px 18px rgba(255, 182, 193, 0.4);
+            box-shadow: 0 6px 18px rgba(255, 123, 156, 0.4);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #ffb3c1, #ff8fa3);
+            background: linear-gradient(135deg, #ff7b9c, #ff9f43);
             color: white;
             border: none;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #ff8fa3, #ff758f);
-            box-shadow: 0 6px 20px rgba(255, 143, 163, 0.5);
+            background: linear-gradient(135deg, #ff6b8b, #ff8f33);
+            box-shadow: 0 6px 20px rgba(255, 123, 156, 0.5);
         }
 
-        /* 視角提示與地圖導航 */
         .controls-hint {
             position: absolute;
             bottom: 25px;
@@ -159,15 +152,14 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        /* 側邊 / 彈窗面板 */
         .modal-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(92, 75, 81, 0.2);
-            backdrop-filter: blur(6px);
+            background: rgba(74, 55, 64, 0.3);
+            backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -183,7 +175,7 @@
         }
 
         .modal-card {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 248, 242, 0.92);
             backdrop-filter: blur(20px);
             border: 2px solid #ffffff;
             border-radius: 24px;
@@ -192,7 +184,7 @@
             max-height: 85vh;
             overflow-y: auto;
             padding: 30px;
-            box-shadow: 0 20px 50px rgba(255, 182, 193, 0.4);
+            box-shadow: 0 20px 50px rgba(255, 123, 156, 0.4);
             transform: scale(0.9);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -206,13 +198,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 2px dashed #ffd6e0;
+            border-bottom: 2px dashed #ffcaa1;
             padding-bottom: 12px;
         }
 
         .modal-title {
             font-size: 1.5rem;
-            color: #6b4c57;
+            color: #5c3243;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -224,156 +216,87 @@
             font-size: 1.5rem;
             color: var(--text-sub);
             cursor: pointer;
-            transition: color 0.2s;
         }
 
-        .close-btn:hover {
-            color: #ff758f;
-        }
-
-        /* 任務清單項目 */
         .task-list {
             list-style: none;
             margin-top: 15px;
         }
 
         .task-item {
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid #ffe5ec;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #ffe3d1;
             border-radius: 12px;
             padding: 12px 16px;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s;
-        }
-
-        .task-item:hover {
-            background: #ffffff;
-            transform: translateX(3px);
         }
 
         .task-item.completed {
-            background: rgba(216, 243, 220, 0.5);
+            background: rgba(216, 243, 220, 0.7);
             text-decoration: line-through;
-            color: #74c69d;
+            color: #52b788;
         }
 
         .task-checkbox {
             width: 20px;
             height: 20px;
-            accent-color: #ff8fa3;
+            accent-color: #ff7b9c;
             cursor: pointer;
         }
 
-        /* 探索日誌 */
         .journal-area {
             width: 100%;
             height: 100px;
             border-radius: 12px;
-            border: 1px solid #ffd6e0;
+            border: 1px solid #ffcaa1;
             padding: 12px;
             font-family: inherit;
             font-size: 0.95rem;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.9);
             color: var(--text-main);
             resize: vertical;
             outline: none;
             margin-top: 10px;
         }
 
-        .journal-area:focus {
-            border-color: #ff8fa3;
-            box-shadow: 0 0 10px rgba(255, 143, 163, 0.2);
-        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; }
+        .input-control { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #ffcaa1; background: rgba(255,255,255,0.9); font-family: inherit; outline: none; }
 
-        /* 輸入框組 */
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            margin-bottom: 5px;
-        }
-
-        .input-control {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #ffd6e0;
-            background: rgba(255,255,255,0.8);
-            font-family: inherit;
-            outline: none;
-        }
-
-        /* 進度條 */
-        .progress-bar-container {
-            width: 100%;
-            height: 10px;
-            background: #ffe5ec;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ffb3c1, #ff758f);
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        /* 響應式微調 */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-            .controls-hint {
-                display: none;
-            }
-        }
+        .progress-bar-container { width: 100%; height: 10px; background: #ffe3d1; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff7b9c, #ff9f43); width: 0%; transition: width 0.4s ease; }
     </style>
 </head>
 <body>
 
-    <!-- 3D WebGL Canvas 畫布 -->
     <div id="webgl-container"></div>
 
-    <!-- UI 選單圖層 -->
     <div class="ui-layer">
         <header class="interactive">
             <div class="header-title">
-                <h1>🐱 GitHub 夢核 3D 探索島嶼</h1>
+                <h1>🐱 夕陽晚霞 3D 探索島嶼</h1>
                 <p>這座島不是用來證明你有多自律，而是用來記錄你究竟探索過多少種可能的人生。</p>
             </div>
             <div class="header-controls">
                 <button class="btn btn-primary" onclick="openCreateIslandModal()">
                     <i class="fa-solid fa-plus"></i> 開闢新島嶼
                 </button>
-                <button class="btn" onclick="exportData()">
-                    <i class="fa-solid fa-download"></i> 備份
-                </button>
-                <button class="btn" onclick="importData()">
-                    <i class="fa-solid fa-upload"></i> 匯入
-                </button>
+                <button class="btn" onclick="exportData()"><i class="fa-solid fa-download"></i> 備份</button>
+                <button class="btn" onclick="importData()"><i class="fa-solid fa-upload"></i> 匯入</button>
             </div>
         </header>
 
         <div class="controls-hint">
-            <span><i class="fa-solid fa-mouse-pointer"></i> 左鍵拖拽：旋轉 3D 視角</span>
+            <span><i class="fa-solid fa-mouse-pointer"></i> 左鍵拖拽：旋轉視角</span>
             <span><i class="fa-solid fa-arrows-up-down"></i> 滾輪：縮放鏡頭</span>
             <span><i class="fa-solid fa-hand-pointer"></i> 點擊島嶼：展開詳細探索任務</span>
         </div>
     </div>
 
-    <!-- 島嶼詳細資訊 Modal -->
+    <!-- 島嶼詳細 Modal -->
     <div class="modal-overlay" id="islandModal">
         <div class="modal-card">
             <div class="modal-header">
@@ -384,12 +307,10 @@
                 <button class="close-btn" onclick="closeModal('islandModal')">&times;</button>
             </div>
 
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="islandProgress"></div>
-            </div>
+            <div class="progress-bar-container"><div class="progress-bar" id="islandProgress"></div></div>
             <p style="font-size: 0.85rem; color: var(--text-sub); text-align: right;" id="progressText">探索進度 0%</p>
 
-            <h3 style="margin-top: 15px; font-size: 1.1rem; color: #6b4c57;"><i class="fa-solid fa-compass"></i> 島嶼探索任務</h3>
+            <h3 style="margin-top: 15px; font-size: 1.1rem; color: #5c3243;"><i class="fa-solid fa-compass"></i> 島嶼探索任務</h3>
             <ul class="task-list" id="taskList"></ul>
 
             <div style="display: flex; gap: 8px; margin-top: 10px;">
@@ -397,11 +318,11 @@
                 <button class="btn btn-primary" onclick="addTask()"><i class="fa-solid fa-plus"></i></button>
             </div>
 
-            <h3 style="margin-top: 20px; font-size: 1.1rem; color: #6b4c57;"><i class="fa-solid fa-book-open"></i> 探索日誌 & 靈感紀錄</h3>
-            <textarea id="journalInput" class="journal-area" placeholder="寫下學習心得、創作靈感，或是為什麼暫停這個興趣..." onchange="saveJournal()"></textarea>
+            <h3 style="margin-top: 20px; font-size: 1.1rem; color: #5c3243;"><i class="fa-solid fa-book-open"></i> 探索日誌 & 靈感紀錄</h3>
+            <textarea id="journalInput" class="journal-area" placeholder="寫下學習心得、創作靈感..." onchange="saveJournal()"></textarea>
 
             <div style="margin-top: 20px; display: flex; justify-content: space-between;">
-                <button class="btn" style="color: #ff758f; border-color: #ffb3c1;" onclick="deleteCurrentIsland()">刪除島嶼</button>
+                <button class="btn" style="color: #ff7b9c; border-color: #ffb3c1;" onclick="deleteCurrentIsland()">刪除島嶼</button>
                 <button class="btn btn-primary" onclick="closeModal('islandModal')">完成關閉</button>
             </div>
         </div>
@@ -417,7 +338,7 @@
 
             <div class="input-group">
                 <label>島嶼名稱</label>
-                <input type="text" id="newIslandName" class="input-control" placeholder="例如：手作烘焙島、西洋棋島...">
+                <input type="text" id="newIslandName" class="input-control" placeholder="例如：手作烘焙島...">
             </div>
 
             <div class="input-group">
@@ -428,54 +349,51 @@
             <div class="input-group">
                 <label>島嶼主題色彩</label>
                 <select id="newIslandColor" class="input-control">
-                    <option value="0xffb3c1">柔和櫻花粉</option>
-                    <option value="0xffd166">溫暖奶油黃</option>
-                    <option value="0x06d6a0">薄荷草地綠</option>
-                    <option value="0x118ab2">天空湖水藍</option>
-                    <option value="0x073b4c">夢幻神秘紫</option>
+                    <option value="0xff9f43">夕陽蜜桃橘</option>
+                    <option value="0xff7b9c">夢幻櫻花粉</option>
+                    <option value="0xfeca57">溫暖奶油黃</option>
+                    <option value="0x1dd1a1">薄荷翡翠綠</option>
+                    <option value="0x48dbfb">暮光天空藍</option>
                 </select>
             </div>
 
             <button class="btn btn-primary" style="width: 100%; margin-top: 15px; justify-content: center;" onclick="confirmCreateIsland()">
-                🌟 立即生成 3D 浮空島
+                🌟 生成 3D 浮空瀑布島
             </button>
         </div>
     </div>
 
     <script>
-        // --- 預設島嶼資料 ---
         const defaultIslands = [
-            { id: 'center', name: 'GitHub 貓咪主島', icon: '🐱', color: 0xffcad4, x: 0, z: 0, isCenter: true, tasks: [{text:'歡迎來到人生探索地圖', done: true}], journal: '這裡是你的探索大本營！' },
-            { id: '1', name: '跳舞島', icon: '🏝️', color: 0xffb3c1, x: -8, z: -6, tasks: [{text:'練習舞蹈基本步', done: false}, {text:'拍攝 Cover 影片', done: false}], journal: '' },
-            { id: '2', name: '音樂島', icon: '🎸', color: 0xffd166, x: 8, z: -7, tasks: [{text:'學吉他和絃', done: false}], journal: '' },
-            { id: '3', name: '聲音島', icon: '🎙️', color: 0x06d6a0, x: -10, z: 5, tasks: [{text:'廣播配音練習', done: false}], journal: '' },
-            { id: '4', name: '語言島', icon: '🌏', color: 0x118ab2, x: 10, z: 6, tasks: [{text:'英文口說練習', done: false}, {text:'日文五十音', done: true}], journal: '' },
-            { id: '5', name: '遊戲創作島', icon: '🎮', color: 0xc8e7ff, x: -4, z: 10, tasks: [{text:'剪輯精華影片', done: false}], journal: '' },
-            { id: '6', name: 'AI 實驗島', icon: '🤖', color: 0xd8f3dc, x: 5, z: 11, tasks: [{text:'學 Python 自動化', done: false}, {text:'製作 AI 工具', done: false}], journal: '' }
+            { id: 'center', name: 'GitHub 貓咪主島', icon: '🐱', color: 0xffa07a, x: 0, z: 0, isCenter: true, tasks: [{text:'歡迎來到人生探索地圖', done: true}], journal: '這裡是你的貓咪探索大本營！' },
+            { id: '1', name: '跳舞島', icon: '🏝️', color: 0xff7b9c, x: -9, z: -7, hasWaterfall: true, tasks: [{text:'練習舞蹈基本步', done: false}], journal: '' },
+            { id: '2', name: '音樂島', icon: '🎸', color: 0xfeca57, x: 9, z: -8, hasFruitTree: true, tasks: [{text:'學吉他和絃', done: false}], journal: '' },
+            { id: '3', name: '聲音島', icon: '🎙️', color: 0x1dd1a1, x: -11, z: 6, hasWaterfall: true, tasks: [{text:'廣播配音練習', done: false}], journal: '' },
+            { id: '4', name: '語言島', icon: '🌏', color: 0x48dbfb, x: 11, z: 7, hasFruitTree: true, tasks: [{text:'英文口說練習', done: false}], journal: '' },
+            { id: '5', name: '遊戲創作島', icon: '🎮', color: 0xff9f43, x: -5, z: 12, hasWaterfall: true, tasks: [{text:'剪輯精華影片', done: false}], journal: '' },
+            { id: '6', name: 'AI 實驗島', icon: '🤖', color: 0xa55eea, x: 6, z: 12, hasFruitTree: true, tasks: [{text:'學 Python 自動化', done: false}], journal: '' }
         ];
 
-        let islands = JSON.parse(localStorage.getItem('my_life_islands_3d')) || defaultIslands;
+        let islands = JSON.parse(localStorage.getItem('my_sunset_islands_3d')) || defaultIslands;
         let currentIslandId = null;
 
-        // --- Three.js 3D 場景初始化 ---
         let scene, camera, renderer, controls;
         let islandMeshes = [];
+        let waterfallParticles = [];
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
 
         function init3D() {
             const container = document.getElementById('webgl-container');
 
-            // 1. Scene
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xffe5ec);
-            scene.fog = new THREE.FogExp2(0xffe5ec, 0.015);
+            // 晚霞橘色與暖紫漸層天空霧氣
+            scene.background = new THREE.Color(0xff8a65);
+            scene.fog = new THREE.FogExp2(0xffaa5b, 0.012);
 
-            // 2. Camera
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 22, 28);
+            camera.position.set(0, 24, 30);
 
-            // 3. Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -483,114 +401,161 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
-            // 4. Controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2.1; // 不穿透水面
+            controls.maxPolarAngle = Math.PI / 2.05;
             controls.minDistance = 10;
-            controls.maxDistance = 60;
+            controls.maxDistance = 70;
 
-            // 5. Lights (夢幻光影)
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            // 夕陽暖光
+            const ambientLight = new THREE.AmbientLight(0xffe0b2, 0.8);
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xffecd2, 1.2);
-            sunLight.position.set(20, 40, 20);
-            sunLight.castShadow = true;
-            sunLight.shadow.mapSize.width = 2048;
-            sunLight.shadow.mapSize.height = 2048;
-            scene.add(sunLight);
+            const sunsetLight = new THREE.DirectionalLight(0xff7043, 1.4);
+            sunsetLight.position.set(30, 25, -20);
+            sunsetLight.castShadow = true;
+            sunsetLight.shadow.mapSize.width = 2048;
+            sunsetLight.shadow.mapSize.height = 2048;
+            scene.add(sunsetLight);
 
-            // 6. Water Plane (夢境水面)
-            const waterGeo = new THREE.PlaneGeometry(200, 200);
+            // 晚霞水面
+            const waterGeo = new THREE.PlaneGeometry(250, 250);
             const waterMat = new THREE.MeshPhongMaterial({
-                color: 0xc8e7ff,
-                shininess: 90,
+                color: 0xff80ab,
+                shininess: 80,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.85
             });
             const water = new THREE.Mesh(waterGeo, waterMat);
             water.rotation.x = -Math.PI / 2;
             water.position.y = -4;
             scene.add(water);
 
-            // 7. 生成所有 3D 島嶼
             buildAllIslands();
 
-            // 8. 事件監聽
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('click', onDocumentMouseDown);
 
-            // 9. 動態循環
             animate();
         }
 
-        // --- 建立 3D 島嶼模型 ---
+        // --- 建立立體島嶼 ---
         function createFloatingIsland(data) {
             const islandGroup = new THREE.Group();
             islandGroup.position.set(data.x, 0, data.z);
             islandGroup.userData = { id: data.id };
 
             const isCenter = data.isCenter;
-            const radius = isCenter ? 3.5 : 2.2;
 
-            // 1. 頂層草地/陸地 (粉色圓角柱)
-            const topGeo = new THREE.CylinderGeometry(radius, radius * 0.9, 0.8, 16);
-            const topMat = new THREE.MeshToonMaterial({ color: data.color || 0xffb3c1 });
-            const topMesh = new THREE.Mesh(topGeo, topMat);
-            topMesh.receiveShadow = true;
-            topMesh.castShadow = true;
-            islandGroup.add(topMesh);
-
-            // 2. 底層倒錐形懸浮岩石
-            const bottomGeo = new THREE.ConeGeometry(radius * 0.9, 2.5, 12);
-            const bottomMat = new THREE.MeshToonMaterial({ color: 0xe0aaff });
-            const bottomMesh = new THREE.Mesh(bottomGeo, bottomMat);
-            bottomMesh.rotation.x = Math.PI;
-            bottomMesh.position.y = -1.65;
-            bottomMesh.castShadow = true;
-            islandGroup.add(bottomMesh);
-
-            // 3. 島嶼建築或椰子樹裝飾
             if (isCenter) {
-                // 主島：貓咪頭像裝飾與城堡
-                const catHeadGeo = new THREE.SphereGeometry(1, 16, 16);
-                const catMat = new THREE.MeshToonMaterial({ color: 0xffffff });
-                const catHead = new THREE.Mesh(catHeadGeo, catMat);
-                catHead.position.y = 1.6;
-                catHead.castShadow = true;
+                // 🐱 貓咪造型主島地形
+                const catShape = new THREE.Shape();
+                // 畫出帶有耳尖的貓頭形狀
+                catShape.moveTo(-2, -1);
+                catShape.lineTo(2, -1);
+                catShape.quadraticCurveTo(3.5, 0, 3, 2);
+                catShape.lineTo(2, 4); // 右耳頂點
+                catShape.lineTo(0.8, 2.2); // 兩耳間凹槽
+                catShape.lineTo(-0.8, 2.2);
+                catShape.lineTo(-2, 4); // 左耳頂點
+                catShape.lineTo(-3, 2);
+                catShape.quadraticCurveTo(-3.5, 0, -2, -1);
+
+                const extrudeSettings = { depth: 1, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.3, bevelThickness: 0.3 };
+                const catGeo = new THREE.ExtrudeGeometry(catShape, extrudeSettings);
+                const catMat = new THREE.MeshToonMaterial({ color: 0xffa07a });
+                const catTerrain = new THREE.Mesh(catGeo, catMat);
+                catTerrain.rotation.x = Math.PI / 2;
+                catTerrain.position.y = 0.5;
+                catTerrain.castShadow = true;
+                catTerrain.receiveShadow = true;
+                islandGroup.add(catTerrain);
+
+                // 中央貓咪標誌與金光
+                const catHeadGeo = new THREE.SphereGeometry(1.2, 16, 16);
+                const catHeadMat = new THREE.MeshToonMaterial({ color: 0xffffff });
+                const catHead = new THREE.Mesh(catHeadGeo, catHeadMat);
+                catHead.position.set(0, 2, 0);
                 islandGroup.add(catHead);
 
-                // 貓耳朵
-                const earGeo = new THREE.ConeGeometry(0.3, 0.6, 4);
-                const earMat = new THREE.MeshToonMaterial({ color: 0xffb3c1 });
-                const ear1 = new THREE.Mesh(earGeo, earMat);
-                ear1.position.set(-0.5, 2.4, 0);
-                const ear2 = ear1.clone();
-                ear2.position.set(0.5, 2.4, 0);
-                islandGroup.add(ear1);
-                islandGroup.add(ear2);
+                // 貓耳朵裝飾
+                const earGeo = new THREE.ConeGeometry(0.4, 0.7, 4);
+                const earMat = new THREE.MeshToonMaterial({ color: 0xff7b9c });
+                const e1 = new THREE.Mesh(earGeo, earMat);
+                e1.position.set(-0.6, 3.0, 0);
+                const e2 = e1.clone();
+                e2.position.set(0.6, 3.0, 0);
+                islandGroup.add(e1);
+                islandGroup.add(e2);
+
             } else {
-                // 普通島嶼：粉橘色小屋
-                const houseGeo = new THREE.BoxGeometry(1, 0.9, 1);
-                const houseMat = new THREE.MeshToonMaterial({ color: 0xffcad4 });
+                // 🏝️ 多層次複雜島嶼 (帶圓形池塘/高低差)
+                const radius = 2.4;
+                const topGeo = new THREE.CylinderGeometry(radius, radius * 0.85, 1, 16);
+                const topMat = new THREE.MeshToonMaterial({ color: data.color || 0xff7b9c });
+                const topMesh = new THREE.Mesh(topGeo, topMat);
+                topMesh.receiveShadow = true;
+                topMesh.castShadow = true;
+                islandGroup.add(topMesh);
+
+                // 底部岩石
+                const bottomGeo = new THREE.ConeGeometry(radius * 0.85, 3, 12);
+                const bottomMat = new THREE.MeshToonMaterial({ color: 0x8e44ad });
+                const bottomMesh = new THREE.Mesh(bottomGeo, bottomMat);
+                bottomMesh.rotation.x = Math.PI;
+                bottomMesh.position.y = -2;
+                bottomMesh.castShadow = true;
+                islandGroup.add(bottomMesh);
+
+                // 小屋 / 城堡建築
+                const houseGeo = new THREE.BoxGeometry(1.1, 1, 1.1);
+                const houseMat = new THREE.MeshToonMaterial({ color: 0xffecd2 });
                 const house = new THREE.Mesh(houseGeo, houseMat);
-                house.position.set(-0.3, 0.85, -0.2);
+                house.position.set(-0.4, 1, -0.2);
                 house.castShadow = true;
 
-                const roofGeo = new THREE.ConeGeometry(0.85, 0.6, 4);
-                const roofMat = new THREE.MeshToonMaterial({ color: 0xff758f });
+                const roofGeo = new THREE.ConeGeometry(0.9, 0.8, 4);
+                const roofMat = new THREE.MeshToonMaterial({ color: 0xff5252 });
                 const roof = new THREE.Mesh(roofGeo, roofMat);
-                roof.position.set(-0.3, 1.5, -0.2);
+                roof.position.set(-0.4, 1.8, -0.2);
                 roof.rotation.y = Math.PI / 4;
-                roof.castShadow = true;
-
                 islandGroup.add(house);
                 islandGroup.add(roof);
+
+                // 果樹 (隨機)
+                if (data.hasFruitTree || Math.random() > 0.4) {
+                    const trunkGeo = new THREE.CylinderGeometry(0.12, 0.18, 0.9);
+                    const trunkMat = new THREE.MeshToonMaterial({ color: 0x8d6e63 });
+                    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+                    trunk.position.set(1.1, 0.95, 0.5);
+
+                    const leavesGeo = new THREE.SphereGeometry(0.6, 8, 8);
+                    const leavesMat = new THREE.MeshToonMaterial({ color: 0x2ecc71 });
+                    const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+                    leaves.position.set(1.1, 1.6, 0.5);
+
+                    // 樹上的小果實
+                    const fruitGeo = new THREE.SphereGeometry(0.1, 6, 6);
+                    const fruitMat = new THREE.MeshToonMaterial({ color: 0xff3366 });
+                    const fruit = new THREE.Mesh(fruitGeo, fruitMat);
+                    fruit.position.set(1.3, 1.6, 0.8);
+
+                    islandGroup.add(trunk);
+                    islandGroup.add(leaves);
+                    islandGroup.add(fruit);
+                }
+
+                // 💧 隨機生成瀑布
+                if (data.hasWaterfall || Math.random() > 0.5) {
+                    const wfGeo = new THREE.PlaneGeometry(0.6, 3.5);
+                    const wfMat = new THREE.MeshBasicMaterial({ color: 0x80d8ff, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
+                    const waterfall = new THREE.Mesh(wfGeo, wfMat);
+                    waterfall.position.set(0, -1.2, radius * 0.82);
+                    islandGroup.add(waterfall);
+                }
             }
 
-            // 4. 浮動的上下飄動動畫數據
             islandGroup.userData.initialY = 0;
             islandGroup.userData.floatOffset = Math.random() * Math.PI * 2;
 
@@ -599,33 +564,27 @@
         }
 
         function buildAllIslands() {
-            // 清除現有 Mesh
             islandMeshes.forEach(mesh => scene.remove(mesh));
             islandMeshes = [];
-
             islands.forEach(data => createFloatingIsland(data));
         }
 
-        // --- 動態渲染與浮動特效 ---
         function animate() {
             requestAnimationFrame(animate);
 
             const time = Date.now() * 0.0015;
 
-            // 讓每個懸浮島上下緩慢飄動
             islandMeshes.forEach((island) => {
                 const offset = island.userData.floatOffset || 0;
-                island.position.y = island.userData.initialY + Math.sin(time + offset) * 0.25;
-                island.rotation.y += 0.002; // 緩慢自轉
+                island.position.y = island.userData.initialY + Math.sin(time + offset) * 0.3;
+                island.rotation.y += 0.0015;
             });
 
             controls.update();
             renderer.render(scene, camera);
         }
 
-        // --- 點擊 3D 島嶼互動 ---
         function onDocumentMouseDown(event) {
-            // 避免點擊 UI 時觸發 3D 選擇
             if (event.target.tagName !== 'CANVAS') return;
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -651,7 +610,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // --- 邏輯 UI 控制 ---
         function openIslandModal(id) {
             currentIslandId = id;
             const island = islands.find(i => i.id === id);
@@ -681,7 +639,6 @@
                 taskList.appendChild(li);
             });
 
-            // 計算進度
             const total = island.tasks ? island.tasks.length : 0;
             const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
             document.getElementById('islandProgress').style.width = percent + '%';
@@ -732,14 +689,10 @@
             const icon = document.getElementById('newIslandIcon').value.trim() || '🏝️';
             const colorHex = parseInt(document.getElementById('newIslandColor').value);
 
-            if (!name) {
-                alert('請輸入島嶼名稱！');
-                return;
-            }
+            if (!name) { alert('請輸入島嶼名稱！'); return; }
 
-            // 隨機擺放角度與距離
             const angle = Math.random() * Math.PI * 2;
-            const distance = 8 + Math.random() * 8;
+            const distance = 9 + Math.random() * 8;
             const x = Math.cos(angle) * distance;
             const z = Math.sin(angle) * distance;
 
@@ -750,6 +703,8 @@
                 color: colorHex,
                 x: x,
                 z: z,
+                hasWaterfall: Math.random() > 0.3,
+                hasFruitTree: Math.random() > 0.3,
                 tasks: [],
                 journal: ''
             };
@@ -763,10 +718,7 @@
         }
 
         function deleteCurrentIsland() {
-            if (currentIslandId === 'center') {
-                alert('主島不能被刪除唷！');
-                return;
-            }
+            if (currentIslandId === 'center') { alert('主島不能被刪除唷！'); return; }
             if (confirm('確定要刪除這座探索島嶼嗎？')) {
                 islands = islands.filter(i => i.id !== currentIslandId);
                 saveData();
@@ -780,14 +732,14 @@
         }
 
         function saveData() {
-            localStorage.setItem('my_life_islands_3d', JSON.stringify(islands));
+            localStorage.setItem('my_sunset_islands_3d', JSON.stringify(islands));
         }
 
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(islands, null, 2));
             const dlAnchor = document.createElement('a');
             dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `my_life_islands_backup.json`);
+            dlAnchor.setAttribute("download", `sunset_islands_backup.json`);
             dlAnchor.click();
         }
 
@@ -805,15 +757,12 @@
                         saveData();
                         buildAllIslands();
                         alert('成功匯入探索資料！');
-                    } catch (err) {
-                        alert('檔案格式不正確！');
-                    }
+                    } catch (err) { alert('檔案格式不正確！'); }
                 }
             }
             input.click();
         }
 
-        // 初始化
         window.onload = init3D;
     </script>
 </body>
