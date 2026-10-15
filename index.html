@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢核馬卡龍王國 3D 探索島嶼 | Pastel Dreamcore Kingdom</title>
+    <title>夢核馬卡龍王國 3D 探索島嶼 | Day & Night Dream Kingdom</title>
     <!-- Three.js 3D 引擎與控制庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -18,8 +18,7 @@
         :root {
             --pastel-blue: #a2c4c9;
             --pastel-pink: #f4b6c2;
-            --pastel-purple: #d1b3c4;
-            --card-glass: rgba(255, 245, 250, 0.85);
+            --card-glass: rgba(255, 245, 250, 0.82);
             --card-border: rgba(255, 255, 255, 0.9);
             --text-main: #4a3e56;
             --text-sub: #7d6b8d;
@@ -34,7 +33,7 @@
 
         body {
             font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
-            background: #d1b3c4;
+            background: #1a1528;
             color: var(--text-main);
             overflow: hidden;
             width: 100vw;
@@ -74,17 +73,17 @@
             border: 1px solid var(--card-border);
             border-radius: 20px;
             padding: 15px 25px;
-            box-shadow: 0 10px 30px rgba(209, 179, 196, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
+            max-width: 1250px;
             margin: 0 auto;
             width: 100%;
         }
 
         .header-title h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: #583c6e;
             display: flex;
             align-items: center;
@@ -99,22 +98,24 @@
 
         .header-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
         }
 
         .btn {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid var(--card-border);
-            padding: 10px 18px;
+            padding: 9px 16px;
             border-radius: 12px;
             color: var(--text-main);
             font-family: inherit;
             font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
@@ -130,9 +131,18 @@
             border: none;
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #e598a7, #8bb3b9);
-            box-shadow: 0 6px 20px rgba(162, 196, 201, 0.6);
+        .time-badge {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #583c6e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
         }
 
         .controls-hint {
@@ -149,7 +159,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
         .modal-overlay {
@@ -158,7 +168,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(74, 62, 86, 0.3);
+            background: rgba(30, 20, 45, 0.4);
             backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
@@ -184,14 +194,12 @@
             max-height: 85vh;
             overflow-y: auto;
             padding: 30px;
-            box-shadow: 0 20px 50px rgba(209, 179, 196, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             transform: scale(0.9);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .modal-overlay.active .modal-card {
-            transform: scale(1);
-        }
+        .modal-overlay.active .modal-card { transform: scale(1); }
 
         .modal-header {
             display: flex;
@@ -202,21 +210,8 @@
             padding-bottom: 12px;
         }
 
-        .modal-title {
-            font-size: 1.5rem;
-            color: #583c6e;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-sub);
-            cursor: pointer;
-        }
+        .modal-title { font-size: 1.5rem; color: #583c6e; display: flex; align-items: center; gap: 10px; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-sub); cursor: pointer; }
 
         .task-list { list-style: none; margin-top: 15px; }
 
@@ -237,26 +232,12 @@
             color: #4a7c85;
         }
 
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            accent-color: #f4b6c2;
-            cursor: pointer;
-        }
+        .task-checkbox { width: 20px; height: 20px; accent-color: #f4b6c2; cursor: pointer; }
 
         .journal-area {
-            width: 100%;
-            height: 100px;
-            border-radius: 12px;
-            border: 1px solid #f4b6c2;
-            padding: 12px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            background: rgba(255,255,255,0.9);
-            color: var(--text-main);
-            resize: vertical;
-            outline: none;
-            margin-top: 10px;
+            width: 100%; height: 100px; border-radius: 12px; border: 1px solid #f4b6c2;
+            padding: 12px; font-family: inherit; font-size: 0.95rem; background: rgba(255,255,255,0.9);
+            color: var(--text-main); resize: vertical; outline: none; margin-top: 10px;
         }
 
         .input-group { margin-bottom: 15px; }
@@ -278,6 +259,10 @@
                 <p>這座島不是用來證明你有多自律，而是用來記錄你究竟探索過多少種可能的人生。</p>
             </div>
             <div class="header-controls">
+                <!-- 手動切換時間按鈕 -->
+                <div class="time-badge" onclick="cycleTimeOfDay()" id="timeToggleBtn" title="點擊手動切換時間景致">
+                    <span id="timeIcon">🌇</span> <span id="timeText">黃昏夕陽 (自動切換中)</span>
+                </div>
                 <button class="btn btn-primary" onclick="openCreateIslandModal()">
                     <i class="fa-solid fa-plus"></i> 開闢新島嶼
                 </button>
@@ -289,7 +274,7 @@
         <div class="controls-hint">
             <span><i class="fa-solid fa-mouse-pointer"></i> 左鍵拖拽：旋轉視角</span>
             <span><i class="fa-solid fa-arrows-up-down"></i> 滾輪：縮放鏡頭</span>
-            <span><i class="fa-solid fa-hand-pointer"></i> 點擊島嶼：展開詳細探索任務</span>
+            <span><i class="fa-solid fa-clock"></i> 每15分鐘自動變幻天空景色</span>
         </div>
     </div>
 
@@ -377,16 +362,59 @@
         let scene, camera, renderer, controls;
         let islandMeshes = [];
         let saturnPlanets = [];
+        let clouds = [];
+        let starsField;
+        let waterMesh, waterVerticesInitial = [];
+        let dirLight, ambientLight;
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
+
+        // --- 三時段設定 (黃昏 -> 天空藍 -> 深紫夜空) ---
+        const TIME_PRESETS = [
+            {
+                name: '黃昏黃橘色',
+                icon: '🌇',
+                bgHex: 0xe09f67,
+                fogHex: 0xe09f67,
+                waterHex: 0xe28d7a,
+                ambientHex: 0xffe8d6,
+                lightHex: 0xff9e79,
+                lightIntensity: 0.8,
+                starsOpacity: 0.1
+            },
+            {
+                name: '清澈天空藍色',
+                icon: '🌤️',
+                bgHex: 0x93c5fd,
+                fogHex: 0x93c5fd,
+                waterHex: 0x60a5fa,
+                ambientHex: 0xf0f9ff,
+                lightHex: 0xffffff,
+                lightIntensity: 0.9,
+                starsOpacity: 0.0
+            },
+            {
+                name: '夜晚神秘深紫藍黑',
+                icon: '🌌',
+                bgHex: 0x181028,
+                fogHex: 0x181028,
+                waterHex: 0x312e81,
+                ambientHex: 0x818cf8,
+                lightHex: 0xc7d2fe,
+                lightIntensity: 0.45,
+                starsOpacity: 0.95
+            }
+        ];
+
+        let currentPresetIndex = 0;
+        let targetPreset = TIME_PRESETS[0];
 
         function init3D() {
             const container = document.getElementById('webgl-container');
 
             scene = new THREE.Scene();
-            // 夢幻天藍粉紫漸層霧氣
-            scene.background = new THREE.Color(0xd1b3c4);
-            scene.fog = new THREE.FogExp2(0xd1b3c4, 0.012);
+            scene.background = new THREE.Color(TIME_PRESETS[0].bgHex);
+            scene.fog = new THREE.FogExp2(TIME_PRESETS[0].fogHex, 0.011);
 
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 26, 34);
@@ -405,44 +433,109 @@
             controls.minDistance = 10;
             controls.maxDistance = 80;
 
-            // ⚠️ 調整光照強度，避免白光曬褪色或過曝
-            const ambientLight = new THREE.AmbientLight(0xfff5fa, 0.55);
+            // 光照
+            ambientLight = new THREE.AmbientLight(TIME_PRESETS[0].ambientHex, 0.6);
             scene.add(ambientLight);
 
-            const dreamyLight = new THREE.DirectionalLight(0xfff8f0, 0.65);
-            dreamyLight.position.set(25, 40, 20);
-            dreamyLight.castShadow = true;
-            dreamyLight.shadow.mapSize.width = 2048;
-            dreamyLight.shadow.mapSize.height = 2048;
-            scene.add(dreamyLight);
+            dirLight = new THREE.DirectionalLight(TIME_PRESETS[0].lightHex, TIME_PRESETS[0].lightIntensity);
+            dirLight.position.set(25, 40, 20);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
 
-            // 天空藍夢幻水面
-            const waterGeo = new THREE.PlaneGeometry(300, 300);
+            // 🌊 波動水面 (Dynamic Wave Surface)
+            const waterGeo = new THREE.PlaneGeometry(320, 320, 40, 40);
+            const posAttr = waterGeo.attributes.position;
+            for (let i = 0; i < posAttr.count; i++) {
+                waterVerticesInitial.push({
+                    x: posAttr.getX(i),
+                    y: posAttr.getY(i),
+                    z: posAttr.getZ(i),
+                    ang: Math.random() * Math.PI * 2,
+                    amp: 0.15 + Math.random() * 0.2,
+                    speed: 0.015 + Math.random() * 0.02
+                });
+            }
+
             const waterMat = new THREE.MeshPhongMaterial({
-                color: 0xa2c4c9,
-                shininess: 70,
+                color: TIME_PRESETS[0].waterHex,
+                shininess: 80,
                 transparent: true,
-                opacity: 0.85
+                opacity: 0.88,
+                flatShading: true
             });
-            const water = new THREE.Mesh(waterGeo, waterMat);
-            water.rotation.x = -Math.PI / 2;
-            water.position.y = -4;
-            scene.add(water);
+            waterMesh = new THREE.Mesh(waterGeo, waterMat);
+            waterMesh.rotation.x = -Math.PI / 2;
+            waterMesh.position.y = -4;
+            scene.add(waterMesh);
 
+            // ✨ 星空與浮雲
+            createStarfield();
+            createClouds();
             createSaturnPlanets();
             buildAllIslands();
 
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('click', onDocumentMouseDown);
 
+            // ⏱️ 定時 15 分鐘自動切換時段
+            setInterval(autoSwitchPreset, 15 * 60 * 1000);
+
             animate();
+        }
+
+        // --- ✨ 繁星星塵 ---
+        function createStarfield() {
+            const starCount = 800;
+            const starGeo = new THREE.BufferGeometry();
+            const starCoords = new Float32Array(starCount * 3);
+
+            for (let i = 0; i < starCount * 3; i += 3) {
+                starCoords[i] = (Math.random() - 0.5) * 220;
+                starCoords[i + 1] = 10 + Math.random() * 70;
+                starCoords[i + 2] = (Math.random() - 0.5) * 220;
+            }
+
+            starGeo.setAttribute('position', new THREE.BufferAttribute(starCoords, 3));
+            const starMat = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.8,
+                transparent: true,
+                opacity: TIME_PRESETS[0].starsOpacity
+            });
+
+            starsField = new THREE.Points(starGeo, starMat);
+            scene.add(starsField);
+        }
+
+        // --- ☁️ 棉花糖浮雲 ---
+        function createClouds() {
+            for (let i = 0; i < 7; i++) {
+                const cloudGroup = new THREE.Group();
+                const partCount = 4 + Math.floor(Math.random() * 3);
+                for (let j = 0; j < partCount; j++) {
+                    const cGeo = new THREE.SphereGeometry(1.5 + Math.random() * 1.2, 8, 8);
+                    const cMat = new THREE.MeshToonMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
+                    const cMesh = new THREE.Mesh(cGeo, cMat);
+                    cMesh.position.set(j * 1.2, Math.random() * 0.4, Math.random() * 0.8);
+                    cloudGroup.add(cMesh);
+                }
+                cloudGroup.position.set(
+                    (Math.random() - 0.5) * 100,
+                    14 + Math.random() * 10,
+                    (Math.random() - 0.5) * 100
+                );
+                cloudGroup.userData = { speed: 0.02 + Math.random() * 0.02 };
+                clouds.push(cloudGroup);
+                scene.add(cloudGroup);
+            }
         }
 
         function createSaturnPlanets() {
             const planetPositions = [
-                { x: -25, y: 18, z: -20, color: 0xf4b6c2, size: 2.2 },
-                { x: 28, y: 22, z: -25, color: 0xa2c4c9, size: 2.8 },
-                { x: -30, y: 15, z: 20, color: 0xe27d60, size: 1.8 }
+                { x: -28, y: 22, z: -25, color: 0xf4b6c2, size: 2.2 },
+                { x: 30, y: 24, z: -28, color: 0xa2c4c9, size: 2.8 }
             ];
 
             planetPositions.forEach(p => {
@@ -473,9 +566,8 @@
             const isCenter = data.isCenter;
             const radius = isCenter ? 4.5 : 3.0;
 
-            // 1. 綠洲草地與泥土 (薄荷清新綠與粉紫底層)
             const topGeo = new THREE.CylinderGeometry(radius, radius * 0.88, 1.2, 24);
-            const topMat = new THREE.MeshToonMaterial({ color: 0x7bc0a3 }); // 綠洲草坪
+            const topMat = new THREE.MeshToonMaterial({ color: 0x7bc0a3 });
             const topMesh = new THREE.Mesh(topGeo, topMat);
             topMesh.receiveShadow = true;
             topMesh.castShadow = true;
@@ -489,41 +581,33 @@
             bottomMesh.castShadow = true;
             islandGroup.add(bottomMesh);
 
-            // 2. 中央潟湖 (天空水藍)
             const lagoonGeo = new THREE.CylinderGeometry(radius * 0.45, radius * 0.45, 0.2, 16);
             const lagoonMat = new THREE.MeshToonMaterial({ color: 0x8bb3b9 });
             const lagoon = new THREE.Mesh(lagoonGeo, lagoonMat);
             lagoon.position.set(0, 0.61, 0);
             islandGroup.add(lagoon);
 
-            // 3. 淺粉紅與天空藍哥德城堡建築
             if (isCenter || Math.random() > 0.3) {
-                // 藍色牆身高塔
                 const towerGeo = new THREE.CylinderGeometry(0.5, 0.6, 2.2, 12);
-                const towerMat = new THREE.MeshToonMaterial({ color: 0xa2c4c9 }); // 天空藍牆面
+                const towerMat = new THREE.MeshToonMaterial({ color: 0xa2c4c9 });
                 const tower1 = new THREE.Mesh(towerGeo, towerMat);
                 tower1.position.set(-radius * 0.35, 1.7, -radius * 0.35);
-                tower1.castShadow = true;
 
-                // 淺粉紅屋頂
                 const coneGeo = new THREE.ConeGeometry(0.7, 1.6, 12);
-                const coneMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 }); // 芭比粉尖頂
+                const coneMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 });
                 const roof1 = new THREE.Mesh(coneGeo, coneMat);
                 roof1.position.set(-radius * 0.35, 3.5, -radius * 0.35);
-                roof1.castShadow = true;
 
-                // 草莓紅屋頂次塔
                 const tower2 = tower1.clone();
                 tower2.position.set(radius * 0.35, 1.4, -radius * 0.35);
                 const roof2 = roof1.clone();
-                roof2.material = new THREE.MeshToonMaterial({ color: 0xe27d60 }); // 草莓鮮紅
+                roof2.material = new THREE.MeshToonMaterial({ color: 0xe27d60 });
                 roof2.position.set(radius * 0.35, 3.0, -radius * 0.35);
 
                 islandGroup.add(tower1); islandGroup.add(roof1);
                 islandGroup.add(tower2); islandGroup.add(roof2);
             }
 
-            // 4. 馬卡龍泡泡棉花樹 (淺粉紅 & 天空藍)
             for (let i = 0; i < 4; i++) {
                 const angle = (i / 4) * Math.PI * 2;
                 const tx = Math.cos(angle) * (radius * 0.65);
@@ -534,45 +618,34 @@
                 const trunk = new THREE.Mesh(trunkGeo, trunkMat);
                 trunk.position.set(tx, 1.0, tz);
 
-                // 淺粉紅與天空藍交替樹冠
                 const treeColor = (i % 2 === 0) ? 0xf4b6c2 : 0xa2c4c9;
                 const leavesGeo = new THREE.SphereGeometry(0.55, 12, 12);
                 const leavesMat = new THREE.MeshToonMaterial({ color: treeColor });
                 const leaves = new THREE.Mesh(leavesGeo, leavesMat);
                 leaves.position.set(tx, 1.6, tz);
-                leaves.castShadow = true;
 
-                islandGroup.add(trunk);
-                islandGroup.add(leaves);
+                islandGroup.add(trunk); islandGroup.add(leaves);
             }
 
-            // 5. 草莓鮮紅發光蘑菇 (Berry Red Shrooms)
             const shroomStem = new THREE.CylinderGeometry(0.08, 0.12, 0.6);
-            const shroomMat = new THREE.MeshToonMaterial({ color: 0xffffff });
-            const stem = new THREE.Mesh(shroomStem, shroomMat);
+            const stem = new THREE.Mesh(shroomStem, new THREE.MeshToonMaterial({ color: 0xffffff }));
             stem.position.set(radius * 0.4, 0.9, radius * 0.3);
 
             const shroomCap = new THREE.ConeGeometry(0.4, 0.4, 12);
-            const capMat = new THREE.MeshToonMaterial({ color: 0xe27d60 }); // 草莓鮮紅
-            const cap = new THREE.Mesh(shroomCap, capMat);
+            const cap = new THREE.Mesh(shroomCap, new THREE.MeshToonMaterial({ color: 0xe27d60 }));
             cap.position.set(radius * 0.4, 1.3, radius * 0.3);
 
-            islandGroup.add(stem);
-            islandGroup.add(cap);
+            islandGroup.add(stem); islandGroup.add(cap);
 
-            // 貓咪標誌 (僅主島)
             if (isCenter) {
                 const catHeadGeo = new THREE.SphereGeometry(1.0, 16, 16);
-                const catMat = new THREE.MeshToonMaterial({ color: 0xffffff });
-                const catHead = new THREE.Mesh(catHeadGeo, catMat);
+                const catHead = new THREE.Mesh(catHeadGeo, new THREE.MeshToonMaterial({ color: 0xffffff }));
                 catHead.position.set(0, 1.6, 0);
 
                 const earGeo = new THREE.ConeGeometry(0.35, 0.6, 4);
                 const earMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 });
-                const e1 = new THREE.Mesh(earGeo, earMat);
-                e1.position.set(-0.5, 2.4, 0);
-                const e2 = e1.clone();
-                e2.position.set(0.5, 2.4, 0);
+                const e1 = new THREE.Mesh(earGeo, earMat); e1.position.set(-0.5, 2.4, 0);
+                const e2 = e1.clone(); e2.position.set(0.5, 2.4, 0);
 
                 islandGroup.add(catHead); islandGroup.add(e1); islandGroup.add(e2);
             }
@@ -590,11 +663,52 @@
             islands.forEach(data => createFloatingIsland(data));
         }
 
+        // --- ⏱️ 時段動態平滑漸變 ---
+        function autoSwitchPreset() {
+            currentPresetIndex = (currentPresetIndex + 1) % TIME_PRESETS.length;
+            targetPreset = TIME_PRESETS[currentPresetIndex];
+            updateTimeBadgeUI();
+        }
+
+        function cycleTimeOfDay() {
+            autoSwitchPreset();
+        }
+
+        function updateTimeBadgeUI() {
+            document.getElementById('timeIcon').innerText = targetPreset.icon;
+            document.getElementById('timeText').innerText = targetPreset.name;
+        }
+
         function animate() {
             requestAnimationFrame(animate);
 
             const time = Date.now() * 0.0012;
 
+            // 1. 背景與光照色彩平滑 Lerp 漸變
+            scene.background.lerp(new THREE.Color(targetPreset.bgHex), 0.02);
+            scene.fog.color.lerp(new THREE.Color(targetPreset.fogHex), 0.02);
+            waterMesh.material.color.lerp(new THREE.Color(targetPreset.waterHex), 0.02);
+            ambientLight.color.lerp(new THREE.Color(targetPreset.ambientHex), 0.02);
+            dirLight.color.lerp(new THREE.Color(targetPreset.lightHex), 0.02);
+            dirLight.intensity = THREE.MathUtils.lerp(dirLight.intensity, targetPreset.lightIntensity, 0.02);
+            starsField.material.opacity = THREE.MathUtils.lerp(starsField.material.opacity, targetPreset.starsOpacity, 0.02);
+
+            // 2. 🌊 水面波光起動
+            const posAttr = waterMesh.geometry.attributes.position;
+            for (let i = 0; i < posAttr.count; i++) {
+                const u = waterVerticesInitial[i];
+                u.ang += u.speed;
+                posAttr.setZ(i, u.z + Math.sin(u.ang) * u.amp);
+            }
+            posAttr.needsUpdate = true;
+
+            // 3. ☁️ 雲朵微風平移
+            clouds.forEach(c => {
+                c.position.x += c.userData.speed;
+                if (c.position.x > 70) c.position.x = -70;
+            });
+
+            // 4. 島嶼與土星環浮動
             islandMeshes.forEach((island) => {
                 const offset = island.userData.floatOffset || 0;
                 island.position.y = island.userData.initialY + Math.sin(time + offset) * 0.3;
