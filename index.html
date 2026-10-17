@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢核馬卡龍王國 3D 探索島嶼 | Sleeping Cat Island</title>
+    <title>夢核馬卡龍王國 3D 探索島嶼 | Roaming Cat Mascot</title>
     <!-- Three.js 3D 引擎與控制庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -18,7 +18,7 @@
         :root {
             --pastel-blue: #a2c4c9;
             --pastel-pink: #f4b6c2;
-            --card-glass: rgba(255, 245, 250, 0.82);
+            --card-glass: rgba(255, 245, 250, 0.85);
             --card-border: rgba(255, 255, 255, 0.9);
             --text-main: #4a3e56;
             --text-sub: #7d6b8d;
@@ -156,6 +156,42 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
+        /* 🐱 貓咪鼓勵語錄對話框 Popover */
+        .cat-speech-bubble {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -160px) scale(0.8);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 2px solid #f4b6c2;
+            border-radius: 20px;
+            padding: 18px 24px;
+            box-shadow: 0 15px 40px rgba(244, 182, 194, 0.4);
+            max-width: 320px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 90;
+        }
+
+        .cat-speech-bubble.active {
+            opacity: 1;
+            transform: translate(-50%, -190px) scale(1);
+        }
+
+        .cat-speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.95) transparent;
+        }
+
         .modal-overlay {
             position: absolute;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -242,10 +278,16 @@
             </div>
         </header>
 
+        <!-- 🐱 貓咪對話框 Popover -->
+        <div class="cat-speech-bubble" id="catBubble">
+            <p style="font-size: 0.8rem; color: #f4b6c2; font-weight: 600; margin-bottom: 4px;">🐾 島嶼導航員喵喵說：</p>
+            <p id="catBubbleText" style="font-size: 0.95rem; color: #4a3e56; font-weight: 500; line-height: 1.4;">今天也要加油唷！</p>
+        </div>
+
         <div class="controls-hint">
             <span><i class="fa-solid fa-mouse-pointer"></i> 左鍵拖拽：旋轉視角</span>
             <span><i class="fa-solid fa-arrows-up-down"></i> 滾輪：縮放鏡頭</span>
-            <span><i class="fa-solid fa-cat"></i> 中央為趴臥貓咪形狀主島</span>
+            <span><i class="fa-solid fa-cat"></i> 點擊主島上的散步小貓聽鼓勵的話！</span>
         </div>
     </div>
 
@@ -327,6 +369,17 @@
             { id: '6', name: 'AI 實驗島', icon: '🤖', color: 0xa2c4c9, x: 7, z: 14, tasks: [{text:'學 Python 自動化', done: false}], journal: '' }
         ];
 
+        // 🐱 貓咪鼓勵語錄庫
+        const CAT_QUOTES = [
+            "今天也要加油唷！每一步探索都在為你的人生增添色彩 ✨",
+            "休息也是探索的一部分！累了就停下來欣賞這片風景吧 🌸",
+            "你已經進行了這麼多種嘗試，真的超厲害的！喵～🐾",
+            "不管結果如何，勇敢出發的你已經在閃閃發光了！",
+            "今天有發現什麼有趣的靈感嗎？快記錄在島上吧 💡",
+            "慢慢來也沒關係，按照你自己的步調探索就好 💖",
+            "這座島不證明自律，只記錄你精彩無比的無窮可能！🌟"
+        ];
+
         let islands = JSON.parse(localStorage.getItem('my_pastel_cat_islands_3d')) || defaultIslands;
         let currentIslandId = null;
 
@@ -338,6 +391,11 @@
         let waterMesh, waterVerticesInitial = [];
         let dirLight, ambientLight;
         let waterfallMesh;
+        let roamingCatGroup, catTailMesh; // 🐾 散步貓咪變數
+        let catTargetAngle = 0, catCurrentAngle = 0;
+        let catHopTime = 0;
+        let bubbleTimeout;
+
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
 
@@ -415,15 +473,60 @@
             animate();
         }
 
+        // --- 🐾 建立散步 3D 小貓咪模型 ---
+        function createRoamingCatMascot() {
+            roamingCatGroup = new THREE.Group();
+            roamingCatGroup.userData = { isMascotCat: true };
+
+            const whiteMat = new THREE.MeshToonMaterial({ color: 0xffffff });
+            const pinkMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 });
+            const blackMat = new THREE.MeshToonMaterial({ color: 0x4a3e56 });
+
+            // 身體 Body
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), whiteMat);
+            body.position.set(0, 0.35, 0);
+            body.scale.set(1, 0.8, 1.2);
+            roamingCatGroup.add(body);
+
+            // 頭 Head
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), whiteMat);
+            head.position.set(0, 0.55, 0.3);
+            roamingCatGroup.add(head);
+
+            // 貓耳 Ears
+            const earGeo = new THREE.ConeGeometry(0.09, 0.18, 4);
+            const ear1 = new THREE.Mesh(earGeo, pinkMat);
+            ear1.position.set(-0.12, 0.8, 0.3);
+            const ear2 = ear1.clone();
+            ear2.position.set(0.12, 0.8, 0.3);
+            roamingCatGroup.add(ear1); roamingCatGroup.add(ear2);
+
+            // 眼睛 Eyes
+            const eyeGeo = new THREE.SphereGeometry(0.04, 6, 6);
+            const eye1 = new THREE.Mesh(eyeGeo, blackMat);
+            eye1.position.set(-0.1, 0.6, 0.52);
+            const eye2 = eye1.clone();
+            eye2.position.set(0.1, 0.6, 0.52);
+            roamingCatGroup.add(eye1); roamingCatGroup.add(eye2);
+
+            // 貓尾巴 Tail
+            catTailMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.4), whiteMat);
+            catTailMesh.position.set(0, 0.45, -0.45);
+            catTailMesh.rotation.x = -Math.PI / 4;
+            roamingCatGroup.add(catTailMesh);
+
+            roamingCatGroup.position.set(1.5, 0.65, 1.5);
+            scene.add(roamingCatGroup);
+        }
+
         // --- 🐱 蜷縮趴臥貓咪 shape 造型生成 ---
         function createSleepingCatMainIsland() {
             const catGroup = new THREE.Group();
             catGroup.userData = { id: 'center' };
 
-            const grassMat = new THREE.MeshToonMaterial({ color: 0x7bc0a3 }); // 翠綠草地
-            const bottomMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 }); // 粉紅懸浮底部
+            const grassMat = new THREE.MeshToonMaterial({ color: 0x7bc0a3 });
+            const bottomMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 });
 
-            // 1. 貓身 (蜷縮主體 Body Ellipse)
             const bodyGeo = new THREE.CylinderGeometry(4.2, 3.8, 1.2, 32);
             const body = new THREE.Mesh(bodyGeo, grassMat);
             body.position.set(0, 0, 0);
@@ -435,14 +538,11 @@
             bodyBottom.rotation.x = Math.PI; bodyBottom.position.y = -2.35;
             catGroup.add(bodyBottom);
 
-            // 2. 貓頭高地 (Head Mound)
             const headGeo = new THREE.CylinderGeometry(2.2, 2.4, 1.8, 24);
             const head = new THREE.Mesh(headGeo, grassMat);
             head.position.set(-2.2, 0.8, -1.2);
-            head.castShadow = true;
             catGroup.add(head);
 
-            // 貓耳朵 Ears
             const earGeo = new THREE.ConeGeometry(0.6, 1.1, 4);
             const earMat = new THREE.MeshToonMaterial({ color: 0xf4b6c2 });
             const ear1 = new THREE.Mesh(earGeo, earMat);
@@ -451,14 +551,12 @@
             ear2.position.set(-1.8, 2.2, -2.4); ear2.rotation.z = -0.1;
             catGroup.add(ear1); catGroup.add(ear2);
 
-            // 3. 貓尾巴 (Curled Tail)
             const tailGeo = new THREE.TorusGeometry(1.8, 0.5, 12, 24, Math.PI * 1.2);
             const tail = new THREE.Mesh(tailGeo, grassMat);
             tail.rotation.x = Math.PI / 2;
             tail.position.set(2.8, -0.1, 1.5);
             catGroup.add(tail);
 
-            // 4. 溫馨城堡與小屋 (Castle on Head Mound)
             const castleTower = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.6, 0.7, 2.2, 12),
                 new THREE.MeshToonMaterial({ color: 0xa2c4c9 })
@@ -471,7 +569,6 @@
             castleRoof.position.set(-2.2, 4.25, -1.0);
             catGroup.add(castleTower); catGroup.add(castleRoof);
 
-            // 暖光窗戶
             const windowLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.2, 8, 8),
                 new THREE.MeshBasicMaterial({ color: 0xffd166 })
@@ -479,14 +576,12 @@
             windowLight.position.set(-2.2, 2.6, -0.38);
             catGroup.add(windowLight);
 
-            // 5. 💧 細長流淌瀑布與發光小水潭 (Waterfall & Lagoon Pool)
             const poolGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.15, 20);
             const poolMat = new THREE.MeshBasicMaterial({ color: 0x80d8ff, transparent: true, opacity: 0.9 });
             const pool = new THREE.Mesh(poolGeo, poolMat);
             pool.position.set(0.8, 0.61, 0.5);
             catGroup.add(pool);
 
-            // 瀑布流道
             const wfGeo = new THREE.PlaneGeometry(0.6, 1.8);
             const wfMat = new THREE.MeshBasicMaterial({ color: 0xb3e5fc, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
             waterfallMesh = new THREE.Mesh(wfGeo, wfMat);
@@ -494,7 +589,6 @@
             waterfallMesh.rotation.y = Math.PI / 4;
             catGroup.add(waterfallMesh);
 
-            // 6. 🍎 🍊 豐收果樹 (掛滿紅、橘果實)
             for (let i = 0; i < 3; i++) {
                 const tx = (i === 0) ? 1.8 : (i === 1 ? -0.8 : 2.2);
                 const tz = (i === 0) ? -2.0 : (i === 1 ? 2.2 : -0.5);
@@ -512,35 +606,27 @@
                 foliage.position.set(tx, 1.7, tz);
                 catGroup.add(trunk); catGroup.add(foliage);
 
-                // 掛滿紅蘋果 / 橘柑橘
                 const fruitColor = (i % 2 === 0) ? 0xee5253 : 0xff9f43;
                 for (let f = 0; f < 3; f++) {
                     const fruit = new THREE.Mesh(
                         new THREE.SphereGeometry(0.12, 8, 8),
                         new THREE.MeshToonMaterial({ color: fruitColor })
                     );
-                    const fx = tx + (Math.random() - 0.5) * 0.7;
-                    const fy = 1.6 + (Math.random() - 0.5) * 0.4;
-                    const fz = tz + (Math.random() - 0.5) * 0.7;
-                    fruit.position.set(fx, fy, fz);
+                    fruit.position.set(tx + (Math.random() - 0.5) * 0.7, 1.6 + (Math.random() - 0.5) * 0.4, tz + (Math.random() - 0.5) * 0.7);
                     catGroup.add(fruit);
                 }
             }
 
-            // 7. 🌸 彩色野生花叢 & 錯落小石頭
             const flowerColors = [0xff758f, 0xffd166, 0xc8e7ff, 0xe27d60];
             for (let f = 0; f < 12; f++) {
                 const flower = new THREE.Mesh(
                     new THREE.SphereGeometry(0.1, 6, 6),
                     new THREE.MeshToonMaterial({ color: flowerColors[f % 4] })
                 );
-                const fx = (Math.random() - 0.5) * 5.0;
-                const fz = (Math.random() - 0.5) * 5.0;
-                flower.position.set(fx, 0.65, fz);
+                flower.position.set((Math.random() - 0.5) * 5.0, 0.65, (Math.random() - 0.5) * 5.0);
                 catGroup.add(flower);
             }
 
-            // 小石頭
             for (let r = 0; r < 6; r++) {
                 const rock = new THREE.Mesh(
                     new THREE.DodecahedronGeometry(0.18),
@@ -550,7 +636,6 @@
                 catGroup.add(rock);
             }
 
-            // 微型石橋 (Over Pool)
             const bridge = new THREE.Mesh(
                 new THREE.BoxGeometry(0.4, 0.1, 1.1),
                 new THREE.MeshToonMaterial({ color: 0xdfb998 })
@@ -563,9 +648,11 @@
 
             scene.add(catGroup);
             islandMeshes.push(catGroup);
+
+            // 🐾 同步在主島上建立散步小貓
+            createRoamingCatMascot();
         }
 
-        // --- 普通懸浮馬卡龍島嶼 ---
         function createFloatingIsland(data) {
             if (data.isCenter) {
                 createSleepingCatMainIsland();
@@ -719,6 +806,23 @@
             document.getElementById('timeText').innerText = targetPreset.name;
         }
 
+        // 🐱 觸發貓咪鼓勵對話框
+        function triggerCatDialogue() {
+            catHopTime = Date.now(); // 觸發跳躍動畫
+            confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+
+            const randomQuote = CAT_QUOTES[Math.floor(Math.random() * CAT_QUOTES.length)];
+            const bubble = document.getElementById('catBubble');
+            document.getElementById('catBubbleText').innerText = randomQuote;
+
+            bubble.classList.add('active');
+
+            clearTimeout(bubbleTimeout);
+            bubbleTimeout = setTimeout(() => {
+                bubble.classList.remove('active');
+            }, 4500);
+        }
+
         function animate() {
             requestAnimationFrame(animate);
 
@@ -732,7 +836,6 @@
             dirLight.intensity = THREE.MathUtils.lerp(dirLight.intensity, targetPreset.lightIntensity, 0.02);
             starsField.material.opacity = THREE.MathUtils.lerp(starsField.material.opacity, targetPreset.starsOpacity, 0.02);
 
-            // 🌊 動態水面與瀑布紋理
             const posAttr = waterMesh.geometry.attributes.position;
             for (let i = 0; i < posAttr.count; i++) {
                 const u = waterVerticesInitial[i];
@@ -749,6 +852,26 @@
                 c.position.x += c.userData.speed;
                 if (c.position.x > 70) c.position.x = -70;
             });
+
+            // 🐾 3D 貓咪散步與跳躍動畫
+            if (roamingCatGroup) {
+                catCurrentAngle += 0.005;
+                const r = 2.2;
+                roamingCatGroup.position.x = Math.cos(catCurrentAngle) * r;
+                roamingCatGroup.position.z = Math.sin(catCurrentAngle) * r;
+                roamingCatGroup.rotation.y = -catCurrentAngle + Math.PI / 2;
+
+                // 點擊貓咪時的蹦跳動作
+                let hopY = 0.65;
+                if (Date.now() - catHopTime < 600) {
+                    const progress = (Date.now() - catHopTime) / 600;
+                    hopY += Math.sin(progress * Math.PI) * 0.6;
+                }
+                roamingCatGroup.position.y = hopY + Math.sin(time * 4) * 0.03;
+
+                // 擺尾動畫
+                if (catTailMesh) catTailMesh.rotation.z = Math.sin(time * 6) * 0.3;
+            }
 
             islandMeshes.forEach((island) => {
                 const offset = island.userData.floatOffset || 0;
@@ -776,6 +899,18 @@
 
             if (intersects.length > 0) {
                 let hitObject = intersects[0].object;
+
+                // 檢查是否點擊到了散步的 3D 小貓咪
+                let parentCheck = intersects[0].object;
+                while (parentCheck) {
+                    if (parentCheck.userData && parentCheck.userData.isMascotCat) {
+                        triggerCatDialogue();
+                        return;
+                    }
+                    parentCheck = parentCheck.parent;
+                }
+
+                // 否則為點擊島嶼
                 while (hitObject.parent && hitObject.parent !== scene) {
                     hitObject = hitObject.parent;
                 }
